@@ -52,7 +52,7 @@ The app will work with mock nutrition data. Just type a food name (like "apple" 
 
 ---
 
-## 👩‍💻 Author & Contribution Summary  
+## Author & Contribution Summary  
 
 ### **Author:**  
 **Elizabeth Ho**

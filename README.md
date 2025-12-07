@@ -10,8 +10,7 @@ The app includes autocomplete search, enabling users to find items faster and ex
 This project was built to learn the fundamentals of full-stack development, API integration, and cloud backend architecture using AWS services.
 
 ## Video Demo
-
-https://youtu.be/VGcH5QOWcn4
+https://youtu.be/lhxrDiOSa0M
 
 ## How to Run
 

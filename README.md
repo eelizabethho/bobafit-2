@@ -11,7 +11,7 @@ This project was built to learn the fundamentals of full-stack development, API 
 
 ## Video Demo
 
-https://youtu.be/WRKjoRxcGOI  
+https://youtu.be/VGcH5QOWcn4
 
 ## How to Run
 

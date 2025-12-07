@@ -22,8 +22,8 @@ interface Suggestion {
   food: string;
 }
 
-// foods that work with the API
-// tested these manually
+// list of foods that work with the API
+// i tested these manually to make sure they return good results
 const COMMON_FOODS = [
   'apple', 'banana', 'orange', 'strawberry', 'blueberry', 'grape', 'watermelon',
   'chicken breast', 'chicken thigh', 'beef', 'pork', 'salmon', 'tuna', 'shrimp',
@@ -33,7 +33,7 @@ const COMMON_FOODS = [
   'chocolate', 'cookie', 'cake', 'ice cream', 'pizza', 'burger', 'sandwich'
 ];
 
-const MAX_SUGGESTIONS = 8;
+const MAX_SUGGESTIONS = 8; // found that 8 suggestions is a good number
 
 interface SearchBarProps {
   onNutritionData: (data: NutritionData | null) => void;
@@ -47,7 +47,8 @@ export default function SearchBar({ onNutritionData, isLoading, setIsLoading }: 
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
 
-  // close dropdown when clicking outside
+  // close the dropdown when user clicks outside of it
+  // had some issues with this at first but this approach works well
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
@@ -61,7 +62,8 @@ export default function SearchBar({ onNutritionData, isLoading, setIsLoading }: 
     };
   }, []);
 
-  // filter suggestions as user types
+  // filter the food list as the user types
+  // using simple substring matching since we have a small list
   useEffect(() => {
     const trimmed = foodQuery.trim();
     
@@ -71,6 +73,7 @@ export default function SearchBar({ onNutritionData, isLoading, setIsLoading }: 
       return;
     }
 
+    // convert to lowercase for case-insensitive matching
     const query = trimmed.toLowerCase();
     const filtered = COMMON_FOODS
       .filter(food => food.toLowerCase().includes(query))
@@ -81,6 +84,8 @@ export default function SearchBar({ onNutritionData, isLoading, setIsLoading }: 
     setShowSuggestions(filtered.length > 0);
   }, [foodQuery]);
 
+  // handle the actual API call to get nutrition data
+  // using useCallback to avoid recreating this function on every render
   const handleSearch = useCallback(async (query?: string) => {
     const searchQuery = query || foodQuery;
     const trimmed = searchQuery.trim();
@@ -106,6 +111,7 @@ export default function SearchBar({ onNutritionData, isLoading, setIsLoading }: 
         const data = await response.json();
         onNutritionData(data);
       } else {
+        // try to get a better error message from the response
         let errorMsg = 'Failed to fetch nutrition data';
         try {
           const errorData = await response.json();
@@ -113,7 +119,7 @@ export default function SearchBar({ onNutritionData, isLoading, setIsLoading }: 
             errorMsg = errorData.error;
           }
         } catch (e) {
-          // json parse failed
+          // if json parsing fails, just use the default message
         }
         console.error('Error:', errorMsg);
         onNutritionData(null);
@@ -126,12 +132,14 @@ export default function SearchBar({ onNutritionData, isLoading, setIsLoading }: 
     }
   }, [foodQuery, onNutritionData, setIsLoading]);
 
+  // when user clicks on a suggestion, set it as the query and search
   const handleSuggestionClick = (suggestion: Suggestion) => {
     setFoodQuery(suggestion.food);
     setShowSuggestions(false);
     handleSearch(suggestion.food);
   };
 
+  // update the input value and show suggestions if there's text
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setFoodQuery(value);
@@ -140,6 +148,7 @@ export default function SearchBar({ onNutritionData, isLoading, setIsLoading }: 
     }
   };
 
+  // handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     handleSearch();
@@ -148,6 +157,7 @@ export default function SearchBar({ onNutritionData, isLoading, setIsLoading }: 
   return (
     <form onSubmit={handleSubmit} className="flex items-center max-w-lg w-full space-x-2">   
       <div className="relative w-full" ref={searchRef}>
+        {/* search icon */}
         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none z-10">
           <svg
             className="w-5 h-5 text-gray-500"
@@ -178,6 +188,7 @@ export default function SearchBar({ onNutritionData, isLoading, setIsLoading }: 
           disabled={isLoading}
         />
 
+        {/* dropdown with food suggestions */}
         {showSuggestions && suggestions.length > 0 && (
           <div className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
             {suggestions.map((suggestion, index) => (

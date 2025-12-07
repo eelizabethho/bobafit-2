@@ -2,11 +2,15 @@ import json
 import os
 import requests
 
+# configuration constants
 API_TIMEOUT = 10
 DEFAULT_SERVING_SIZE = 100
 
 def build_response(status_code, body, headers=None):
-    # build response with cors headers
+    """
+    helper function to build consistent api responses with cors headers
+    makes it easier to return responses without repeating the header setup
+    """
     default_headers = {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
@@ -23,12 +27,16 @@ def build_response(status_code, body, headers=None):
     }
 
 def extract_food_query(event):
-    # get food name from request
+    """
+    extract the food name from the api gateway event
+    handles both get requests (query string) and post requests (body)
+    """
+    # check query string first since that's what we're using
     query_params = event.get('queryStringParameters') or {}
     if isinstance(query_params, dict) and query_params.get('food'):
         return query_params['food']
     
-    # try body for post requests
+    # fallback to body for post requests (not really using this but good to have)
     if event.get('body'):
         try:
             body = json.loads(event['body']) if isinstance(event.get('body'), str) else event.get('body')
@@ -40,7 +48,10 @@ def extract_food_query(event):
     return None
 
 def parse_nutrition_item(item):
-    # extract nutrition data from api response
+    """
+    extract nutrition data from a single item in the api response
+    converts sodium from mg to grams to keep units consistent
+    """
     return {
         'calories': item.get('calories', 0),
         'protein': item.get('protein_g', 0),
@@ -48,14 +59,17 @@ def parse_nutrition_item(item):
         'fat': item.get('fat_total_g', 0),
         'fiber': item.get('fiber_g', 0),
         'sugar': item.get('sugar_g', 0),
-        'sodium': item.get('sodium_mg', 0) / 1000.0,
+        'sodium': item.get('sodium_mg', 0) / 1000.0,  # convert mg to grams
         'saturated_fat': item.get('fat_saturated_g', 0),
         'cholesterol': item.get('cholesterol_mg', 0),
         'potassium': item.get('potassium_mg', 0)
     }
 
 def aggregate_nutrition(items):
-    # add up nutrition for multiple foods
+    """
+    when the user searches for multiple foods (like "apple and banana"),
+    we need to add up all the nutrition values
+    """
     totals = {
         'calories': 0,
         'protein': 0,
@@ -77,9 +91,11 @@ def aggregate_nutrition(items):
     return totals
 
 def lambda_handler(event, context):
-    # get nutrition info from calorieninjas api
+    """
+    main lambda handler that gets nutrition info from calorieninjas api
+    """
     
-    # handle cors preflight
+    # handle cors preflight requests from the browser
     if event.get('httpMethod') == 'OPTIONS':
         return build_response(200, {})
     
@@ -91,7 +107,8 @@ def lambda_handler(event, context):
         if not food_query:
             return build_response(400, {'error': 'Food parameter is required'})
         
-        # return mock data if no api key
+        # if no api key is set, return mock data for testing
+        # this makes it easier to test locally without needing the api key
         if not api_key:
             return build_response(200, {
                 'food': food_query,
@@ -105,7 +122,7 @@ def lambda_handler(event, context):
                 'message': 'Using mock data. Set CALORIENINJAS_API_KEY environment variable for real data.'
             })
         
-        # call api
+        # make the api call to calorieninjas
         api_url = 'https://api.calorieninjas.com/v1/nutrition'
         params = {'query': food_query}
         api_headers = {'X-Api-Key': api_key}
@@ -126,7 +143,7 @@ def lambda_handler(event, context):
                 'error': f'No nutrition data found for "{food_query}"'
             })
         
-        # single item
+        # handle single food item
         if len(items) == 1:
             item = items[0]
             nutrition = parse_nutrition_item(item)
@@ -137,7 +154,7 @@ def lambda_handler(event, context):
                 'nutrition': nutrition
             })
         else:
-            # multiple items - add them up
+            # multiple items in the query - aggregate the nutrition values
             nutrition = aggregate_nutrition(items)
             item_names = [item.get('name', '') for item in items if item.get('name')]
             
@@ -148,10 +165,12 @@ def lambda_handler(event, context):
             })
             
     except requests.exceptions.RequestException as e:
+        # network errors or request timeouts
         return build_response(500, {
             'error': f'Request error: {str(e)}'
         })
     except Exception as e:
+        # catch any other unexpected errors
         return build_response(500, {
             'error': f'Internal error: {str(e)}'
         })

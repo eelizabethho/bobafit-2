@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// next.js api route that proxies requests to the lambda function
+// this allows the frontend to work locally without needing the api gateway url
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const food = searchParams.get('food');
@@ -11,7 +13,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  // get endpoint from env or use local sam server
+  // try to get endpoint from env vars, otherwise use local sam server
   const apiEndpoint = process.env.API_GATEWAY_ENDPOINT || 
                      process.env.LOCAL_API_ENDPOINT || 
                      'http://127.0.0.1:3001';
@@ -28,7 +30,7 @@ export async function GET(request: NextRequest) {
       const data = await response.json();
       return NextResponse.json(data, { status: response.status });
     } else {
-      // api failed, return mock
+      // if api call fails, return mock data so the app still works
       const errorText = await response.text();
       console.warn('API call failed:', errorText);
       return NextResponse.json({
@@ -46,7 +48,7 @@ export async function GET(request: NextRequest) {
       });
     }
   } catch (error) {
-    // network error
+    // network error or api not running
     console.warn('Could not reach API:', error);
     return NextResponse.json({
       food: food,

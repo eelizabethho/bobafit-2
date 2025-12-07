@@ -22,7 +22,8 @@ interface NutritionData {
   message?: string;
 }
 
-// nutrition card component
+// reusable component for displaying nutrition values
+// made this to avoid repeating the same card structure
 function NutritionCard({ label, value, unit, bgColor, textColor }: {
   label: string;
   value: number;
@@ -30,7 +31,7 @@ function NutritionCard({ label, value, unit, bgColor, textColor }: {
   bgColor: string;
   textColor: string;
 }) {
-  // decimals for small values, whole numbers for big ones
+  // show decimals for small values (like 0.3g), whole numbers for larger ones
   const displayValue = value < 1 ? roundToDecimal(value, 1) : Math.round(value);
   
   return (
@@ -58,7 +59,9 @@ export default function Home() {
             
           }}
     >
+      {/* main container with backdrop blur effect */}
       <div className="w-full max-w-2xl mx-4 rounded-2xl shadow-lg backdrop-blur-md bg-white/20 flex flex-col items-center justify-start py-8 px-6">
+        {/* header with title and logo */}
         <div className="w-full flex items-center justify-between pt-4 pb-6">
           <div className="w-10"></div>
           <h1 className="text-black text-4xl text-center font-bold">Nutrition Checker</h1>
@@ -68,6 +71,8 @@ export default function Home() {
             className="w-15 h-12"
             />
         </div>
+        
+        {/* search bar component */}
         <div className="flex flex-col items-center w-full mb-6">
           <SearchBar 
             onNutritionData={setNutritionData} 
@@ -76,12 +81,14 @@ export default function Home() {
           />
         </div>
 
+        {/* display nutrition facts when we have data */}
         {nutritionData && (
           <div className="w-full mt-4 p-6 bg-white/90 rounded-lg shadow-md">
             <div className="text-center mb-4">
               <h2 className="text-2xl font-bold text-gray-800 mb-2">
                 {nutritionData.food}
               </h2>
+              {/* show serving size if available */}
               {nutritionData.serving_size && (
                 <p className="text-sm text-gray-600">
                   Serving Size: <span className="font-semibold">{Math.round(nutritionData.serving_size)}g</span>
@@ -93,6 +100,7 @@ export default function Home() {
                 {nutritionData.message}
               </p>
             )}
+            {/* grid layout for nutrition cards */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <NutritionCard
                 label="Calories"
@@ -129,6 +137,7 @@ export default function Home() {
                 bgColor="bg-purple-50"
                 textColor="text-purple-700"
               />
+              {/* only show sugar if it exists and is greater than 0 */}
               {shouldShowValue(nutritionData.nutrition.sugar) && (
                 <NutritionCard
                   label="Sugar"
@@ -138,6 +147,7 @@ export default function Home() {
                   textColor="text-pink-700"
                 />
               )}
+              {/* sodium is displayed differently because it needs to be in mg */}
               {shouldShowValue(nutritionData.nutrition.sodium) && (
                 <div className="bg-indigo-50 p-4 rounded-lg">
                   <div className="text-sm text-gray-600">Sodium</div>

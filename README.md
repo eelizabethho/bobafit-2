@@ -10,21 +10,45 @@ Built with Next.js frontend and AWS Lambda backend.
 
 ## Video Demo
 
-[Add your video link here]
+https://youtu.be/WRKjoRxcGOI  
 
-## Installation
+## How to Run
 
-### What You Need
+### Quick Start (All You Need!)
 
-- Node.js 18+
-- Python 3.12
-- AWS SAM CLI
-- Docker
-- CalorieNinjas API key (free at https://www.calorieninjas.com/)
+1. **Install Node.js 18+** if you don't have it: [nodejs.org](https://nodejs.org/)
 
-### Setup
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-1. **Backend:**
+3. **Run the app:**
+   ```bash
+   npm run dev
+   ```
+
+4. **Open your browser:**
+   Go to http://localhost:3000 and start searching for foods!
+
+The app will work with mock nutrition data. Just type a food name (like "apple" or "chicken breast") and see the nutrition facts!
+
+**Example:** Search "apple" to see nutrition facts like 53 calories, 0.3g protein, 14.1g carbs, etc.
+
+---
+
+## Optional: Testing with Real API Data
+
+If you want to test the Lambda backend locally with real CalorieNinjas API data, you'll need:
+
+- **Python 3.12**
+- **AWS SAM CLI** - [Install guide](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html)
+- **Docker** - [Download](https://www.docker.com/)
+- **CalorieNinjas API key** - Get a free one at [calorieninjas.com](https://www.calorieninjas.com/)
+
+### Setup Backend
+
+1. **Configure API key:**
    ```bash
    cd backend/bobafit-backend
    ```
@@ -37,28 +61,23 @@ Built with Next.js frontend and AWS Lambda backend.
      }
    }
    ```
-   
-   Build and run:
+
+2. **Build the backend:**
    ```bash
    sam build
+   ```
+
+3. **Start the backend** (in one terminal):
+   ```bash
    sam local start-api --port 3001 --env-vars env.json
    ```
 
-2. **Frontend:**
+4. **Start the frontend** (in another terminal):
    ```bash
-   npm install
    npm run dev
    ```
 
-3. Open http://localhost:3000
-
-## How to Run
-
-1. Start backend in one terminal (port 3001)
-2. Start frontend in another terminal (port 3000)
-3. Open browser and search for foods
-
-**Example:** Search "apple" to see nutrition facts like 53 calories, 0.3g protein, 14.1g carbs, etc.
+Now the app will use real API data instead of mock data!
 
 ## Technologies Used
 
@@ -70,7 +89,7 @@ Built with Next.js frontend and AWS Lambda backend.
 
 ## Author
 
-[Your Name]
+Elizabeth Ho 
 
 **What I Built:**
 - Frontend with autocomplete search

@@ -35,49 +35,6 @@ The app will work with mock nutrition data. Just type a food name (like "apple" 
 
 **Example:** Search "apple" to see nutrition facts like 53 calories, 0.3g protein, 14.1g carbs, etc.
 
----
-
-## Optional: Testing with Real API Data
-
-If you want to test the Lambda backend locally with real CalorieNinjas API data, you'll need:
-
-- **Python 3.12**
-- **AWS SAM CLI** - [Install guide](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html)
-- **Docker** - [Download](https://www.docker.com/)
-- **CalorieNinjas API key** - Get a free one at [calorieninjas.com](https://www.calorieninjas.com/)
-
-### Setup Backend
-
-1. **Configure API key:**
-   ```bash
-   cd backend/bobafit-backend
-   ```
-   
-   Edit `env.json` and add your API key:
-   ```json
-   {
-     "NutritionFunction": {
-       "CALORIENINJAS_API_KEY": "your-key-here"
-     }
-   }
-   ```
-
-2. **Build the backend:**
-   ```bash
-   sam build
-   ```
-
-3. **Start the backend** (in one terminal):
-   ```bash
-   sam local start-api --port 3001 --env-vars env.json
-   ```
-
-4. **Start the frontend** (in another terminal):
-   ```bash
-   npm run dev
-   ```
-
-Now the app will use real API data instead of mock data!
 
 ## Technologies Used
 
